@@ -41,6 +41,7 @@ module.exports = http.createServer(function(req, res) {
       res.end();
       return;
     }
+    console.log(req.url.query);
     res.writeHead(400, {'Content-Type': 'text/plain'});
     res.write(cowsay.say({text:'bad request'}));
     res.end();
