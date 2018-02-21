@@ -6,45 +6,42 @@ const querystring = require('querystring');
 const cowsay = require('cowsay');
 const parseBody = require('./parse-body.js');
 
-module.exports = http.createServer(function(req, res) {
+module.exports = http.createServer(function (req, res) {
   req.url = url.parse(req.url);
   req.url.query = querystring.parse(req.url.query);
 
-  if(req.method === 'GET' && req.url.pathname === '/') {
+  if (req.method === 'GET' && req.url.pathname === '/') {
     res.writeHead(200, {
       'Content-Type': 'text/plain',
     });
     res.write('hello from my server');
   }
 
-  if(req.method === 'GET' && req.url.pathname === '/cowsay') {
+  if (req.method === 'GET' && req.url.pathname === '/cowsay') {
     let params = req.url.query;
-    if(!params.text) {
-      res.writeHead(400, {'Content-Type': 'text/plain'});
-      res.write(cowsay.say({text:'bad request'}));
+    if (!params.text) {
+      res.writeHead(400, { 'Content-Type': 'text/plain' });
+      res.write(cowsay.say({ text: 'bad request' }));
       res.end();
       return;
     }
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.write(cowsay.say({text: params.text}));
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.write(cowsay.say({ text: params.text }));
     res.end();
   }
 
-  if(req.method === 'POST' && req.url.pathname === '/cowsay') {
-    if(req.body) {
-      parseBody(req, function(err) {
-        console.log(req);
-        if(err) return console.error(err);
-      });
-      res.writeHead(200, {'Content-Type': 'text/plain'});
-      res.write(cowsay.say({text: req.body.text}));
+  if (req.method === 'POST' && req.url.pathname === '/cowsay') {
+    parseBody(req, function (err) {
+      if (err) return console.error(err);
+      if (req.body.message) {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.write(cowsay.say({ text: req.body.message }));
+      } else {
+        res.writeHead(400, { 'Content-Type': 'text/plain' });
+        res.write(cowsay.say({ text: 'bad request' }));
+      }
       res.end();
-      return;
-    }
-    console.log(req.url.query);
-    res.writeHead(400, {'Content-Type': 'text/plain'});
-    res.write(cowsay.say({text:'bad request'}));
-    res.end();
+    });
   }
   res.end();
 });
